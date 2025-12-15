@@ -1,0 +1,26 @@
+services:
+  neo4j:
+    image: gag
+    container_name: gag
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:                     # host dir : container dir
+      - .:/home/gag              # host:  ~/norm/rag/gag.  has .env, gcloud, neo4j*tar.gz
+      - $HOME/big/data/neo4j/logs:/var/lib/neo4j/logs
+      - $HOME/big/data/neo4j/config:/var/lib/neo4j/config
+      - $HOME/big/data/neo4j/data:/var/lib/neo4j/data
+      - $HOME/big/data/neo4j/plugins:/var/lib/neo4j/plugins
+      - $HOME/big/data/neo4j/logs:/var/lib/neo4j/logs
+
+      # gcloud -- preserve applications-default-credentials.json
+      # .env cannot use /home/gag/gcloud/application_default_credentials.json
+      #     it must use /root/.config/gcloud.  i tried.
+      #     so we must mount onto /root
+      - $HOME/norm/rag/gag/gcloud:/root/.config/gcloud  
+    ports:
+      - "7474:7474"   # http
+      - "7687:7687"   # bolt
+      - "7473:7473"   # https
+    command: neo4j console
+
